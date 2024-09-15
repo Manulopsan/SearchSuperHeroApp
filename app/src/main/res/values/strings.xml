@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">superHeroApp</string>
+    <string name="male">Hombre</string>
+    <string name="female">Mujer</string>
+    <string name="heightCm">Altura [cm]</string>
+    <string name="weightKg">Peso [Kg]</string>
+    <string name="age">Edad</string>
+    <string name="result">Resultado:</string>
+    <string name="TaskList">Lista de tareas</string>
+    <string name="TodoCategories">Categorías</string>
+    <string name="addTask">Añada la tarea</string>
+    <string name="BusinessText">Negocios</string>
+    <string name="PersonalText">Personal</string>
+    <string name="OtrosText">Otros</string>
+    <string name="intelligence">Intelligence</string>
+    <string name="strength">Strength</string>
+    <string name="speed">Speed</string>
+    <string name="durability">Durability</string>
+    <string name="power">Power</string>
+    <string name="combat">Combat</string>
+    <string name="button_biography">Button biography</string>
+    <string name="image_of_superhero">Image of superhero</string>
+    <string name="biografia">Biografia</string>
+</resources>

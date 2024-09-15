@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!--IMCApp-->
+    <color name="background_component">#1D1E33</color>
+    <color name="background_component_selected">#FF111328</color>
+    <color name="background_app">#0E0B20</color>
+    <color name="background_button">#EB1555</color>
+    <color name="title_text">#FF8D8E98</color>
+    <color name="test">#EB8719</color>
+    <color name="background_fab">#FF6200EE</color>
+
+    <!--TodoApp-->
+    <color name="todo_background_card">#FF081A4A</color>
+    <color name="todo_background_disabled">#787878</color>
+    <color name="todo_background_todo_app">#FF2D4993</color>
+    <color name="todo_subtitle_text">#959595</color>
+    <color name="todo_accent">#E91E63</color>
+
+    <color name="todo_business_category">#FF9800</color>
+    <color name="todo_personal_category">#00BCD4</color>
+    <color name="todo_other_category">#4CAF50</color>
+
+    <color name="superHeroes_id">#69d2e7</color>
+    <color name="superHerores_nameText">#2a545c</color>
+    <color name="superHerores_nameTextTransparency">#2D2A545C</color>
+    <color name="superHeroes_background_item">#a7dbd8</color>
+    <color name="superHeroes_TBD4">#546e6c</color>
+    <color name="superHeroes_backgroundPowerStats">#e0e4cc</color>
+    <color name="superHeroes_TBD2">#f38630</color>
+    <color name="superHeroes_TBD3">#fa6900</color>
+    <color name="bar_chart">#12DAC7</color>
+    <color name="fab_background_bio">#a7dbd8</color>
+    <color name="fab_text_bio_detail">#2D2A545C</color>
+    <color name="arrow_fab">#1D1E33</color>
+
+</resources>
