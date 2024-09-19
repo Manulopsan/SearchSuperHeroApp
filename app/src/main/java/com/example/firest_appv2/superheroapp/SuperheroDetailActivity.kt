@@ -57,8 +57,6 @@ class SuperheroDetailActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-
         initUI()
         getDetailInfo(idSuperhero)
         updateInfo()
@@ -130,7 +128,6 @@ class SuperheroDetailActivity : AppCompatActivity() {
                     )
                 //Max value axis Y
                 (binding.chartView.chart?.layers?.firstOrNull() as? ColumnCartesianLayer)?.axisValueOverrider = AxisValueOverrider.fixed(maxY=100.0)
-
             }
         }
     }

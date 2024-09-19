@@ -21,4 +21,12 @@
     <string name="button_biography">Button biography</string>
     <string name="image_of_superhero">Image of superhero</string>
     <string name="biografia">Biografia</string>
+    <string name="compara_2_superheroes">Compara 2 superhéroes</string>
+    <string name="buscar_un_superheroe">Buscar un superhéroe</string>
+    <string name="compareSuperheroes">Compara dos superhéroes</string>
+    <string name="btnDeleteSecondSuperhero">Boton eliminar segundo super hereo</string>
+    <string name="btnDelateFirstSuperhero">Boton eliminar primer superheroe</string>
+    <string name="btnAddSecondSuperHeroe">Introduce el segundo superheroe</string>
+    <string name="btnAddFirstSuperheroe">Introduce el primer superhéroe</string>
+    <string name="winSuperheroe">Superhéroe ganador</string>
 </resources>

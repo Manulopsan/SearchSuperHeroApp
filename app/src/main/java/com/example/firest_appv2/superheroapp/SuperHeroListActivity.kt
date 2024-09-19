@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.firest_appv2.R
 import com.example.firest_appv2.databinding.ActivitySuperHeroListBinding
 import com.example.firest_appv2.superheroapp.SuperheroDetailActivity.Companion.EXTRA_ID
+import com.example.firest_appv2.superheroapp.superheroCompare.SuperheroCompareActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,7 +54,7 @@ class SuperHeroListActivity : AppCompatActivity() {
 
             override fun onQueryTextChange(newText: String?): Boolean = false
         })
-        superheroeAdapter = SuperheroAdapter{superheroID -> detailSuperhero(superheroID)}
+        superheroeAdapter = SuperheroAdapter{superheroID -> applyFunction(superheroID)}
         rvSuperhero = binding.rvSuperhero
         rvSuperhero.layoutManager = LinearLayoutManager(rvSuperhero.context,LinearLayoutManager.VERTICAL,false)
         rvSuperhero.adapter = superheroeAdapter
@@ -90,6 +91,33 @@ class SuperHeroListActivity : AppCompatActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit
+    }
+
+    private fun applyFunction(id:String){
+        val destination:String = intent.extras?.getString("DESTINATION").orEmpty()
+        val idFirstSuperheroe = intent.extras?.getString("FirstSuperheroe").orEmpty()
+        val idSecondSuperheroe = intent.extras?.getString("SecondSuperheroe").orEmpty()
+        if(destination.isNotEmpty()){
+            //Se ha accedido desde la opción de comparar dos superhéroes
+            val destination = intent.extras?.getString("DESTINATION").orEmpty()
+            val intent = Intent(this,SuperheroCompareActivity::class.java)
+            intent.putExtra("EXTRA_DESTINATION",destination)
+            intent.putExtra("EXTRA_ID",id)
+
+            if(destination=="FirstSuperhero"){
+                intent.putExtra("EXTRA_FIRST_ID",id)
+                intent.putExtra("EXTRA_SECOND_ID",idSecondSuperheroe)
+            }
+
+            if(destination=="SecondSuperhero"){
+                intent.putExtra("EXTRA_FIRST_ID",idFirstSuperheroe)
+                intent.putExtra("EXTRA_SECOND_ID",id)
+            }
+
+            startActivity(intent)
+        }else{
+            detailSuperhero(id)
+        }
     }
 
     private fun detailSuperhero(id:String){
