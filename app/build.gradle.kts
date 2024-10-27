@@ -1,8 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.devtools.ksp")
-    id("androidx.room") version "2.6.1" apply false
 }
 
 android {
@@ -62,8 +60,5 @@ dependencies {
     //Charts
     implementation("com.patrykandpatrick.vico:core:2.0.0-alpha.28")
     implementation("com.patrykandpatrick.vico:views:2.0.0-alpha.28")
-    //RoomDb
-    implementation("androidx.room:room-runtime:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
 }
 

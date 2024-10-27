@@ -3,7 +3,6 @@ package com.example.firest_appv2.superheroapp
 import SuperHeroDataResponse
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -18,12 +17,9 @@ import com.example.firest_appv2.superheroapp.SuperheroDetailActivity.Companion.E
 import com.example.firest_appv2.superheroapp.Utilities.Utility
 import com.example.firest_appv2.superheroapp.superheroCompare.SuperheroCompareActivity
 import com.example.firest_appv2.superheroapp.superheroCompare.data.Superhero
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -59,7 +55,7 @@ class SuperHeroListActivity : AppCompatActivity() {
 
             override fun onQueryTextChange(newText: String?): Boolean = false
         })
-        superheroeAdapter = SuperheroAdapter{superheroID -> applyFunction(superheroID)}
+        superheroeAdapter = SuperheroAdapter(Utility.listSuperheroes){superheroID -> applyFunction(superheroID)}
         rvSuperhero = binding.rvSuperhero
         rvSuperhero.layoutManager = LinearLayoutManager(rvSuperhero.context,LinearLayoutManager.VERTICAL,false)
         rvSuperhero.adapter = superheroeAdapter
@@ -84,7 +80,6 @@ class SuperHeroListActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                Log.i("prueba", "fracaso")
             }
         }
     }

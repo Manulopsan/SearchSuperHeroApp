@@ -1,5 +1,6 @@
 package com.example.firest_appv2.superheroapp
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Spannable
@@ -13,6 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.firest_appv2.R
 import com.example.firest_appv2.databinding.ActivitySuperheroDetailBinding
+import com.example.firest_appv2.superheroapp.Utilities.Utility
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.AxisValueOverrider
@@ -49,7 +51,7 @@ class SuperheroDetailActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivitySuperheroDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        retrofit = getRetrofit()
+        retrofit = Utility.getRetrofit()
         val idSuperhero:String = intent.extras?.getString(EXTRA_ID).orEmpty()
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -64,6 +66,10 @@ class SuperheroDetailActivity : AppCompatActivity() {
 
     private fun initUI(){
         btnBioDetail = binding.btnBioDetail
+        binding.btnreturn.setOnClickListener{
+            val intent = Intent(this,SuperHeroListActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun getDetailInfo(id:String){
@@ -89,13 +95,6 @@ class SuperheroDetailActivity : AppCompatActivity() {
         binding.chartView
     }
 
-    private fun getRetrofit(): Retrofit {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://superheroapi.com/api/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        return retrofit
-    }
 
     private fun generateChart(data:SuperheroPowerStats){
         val modelProducer = CartesianChartModelProducer()

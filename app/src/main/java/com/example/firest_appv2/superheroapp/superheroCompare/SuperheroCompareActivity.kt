@@ -51,7 +51,7 @@ class SuperheroCompareActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivitySuperheroCompareBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        retrofit = getRetrofit()
+        retrofit = Utility.getRetrofit()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -59,7 +59,7 @@ class SuperheroCompareActivity : AppCompatActivity() {
         }
 
         initUI()
-        // getInfo()  **** BAJO REVISIÓN - ¿PARA QUE SE NECESITA?
+
         updateSuperheroes()
     }
 
@@ -68,8 +68,8 @@ class SuperheroCompareActivity : AppCompatActivity() {
         // secondSuperhero Utility.secondsuperhero
         binding.btnAddFirstSuperHero.setOnClickListener { navigateToListSuperHeroes("FirstSuperhero") }
         binding.btnAddSecondSuperHero.setOnClickListener { navigateToListSuperHeroes("SecondSuperhero") }
-        binding.btnDeleteFirstSuperHero.setOnClickListener { deleteSuperhero("FIRST") }
-        binding.btnDeleteSecondSuperHero.setOnClickListener() { deleteSuperhero("SECOND") }
+        binding.btnDeleteFirstSuperHero.setOnClickListener { deleteSuperhero(Utility.firstSuperhero) }
+        binding.btnDeleteSecondSuperHero.setOnClickListener() { deleteSuperhero(Utility.secondSuperhero) }
         binding.ivSimbolCompare.setOnClickListener {
             compareSuperheroes(
                 Utility.firstSuperhero,
@@ -95,9 +95,6 @@ class SuperheroCompareActivity : AppCompatActivity() {
         if(Utility.firstSuperhero.id != ""){
             //Ya hay un primer superhéroe elegido
             //1º Cargamos la imagen
-            Log.d("PRUEBA","ID - ${Utility.firstSuperhero.id}")
-            Log.d("PRUEBA","NOMBRE ${Utility.firstSuperhero.name}")
-            Log.d("PRUEBA","URL IMAGE ${Utility.firstSuperhero.urlImage}")
             Picasso.get().load(Utility.firstSuperhero.urlImage)
                 .into(binding.ivfirstSuperhero)
             //2º cargamos el nombre del superhéroe
@@ -108,8 +105,6 @@ class SuperheroCompareActivity : AppCompatActivity() {
         if(Utility.secondSuperhero.id!=""){
             //Ya hay un segundo superhéroe elegido
             //1º Cargamos la imagen
-            Log.d("PRUEBA","ID - SECOND SUPERHERO ${Utility.secondSuperhero.id}")
-            Log.d("PRUEBA","URL IMAGE - BEFORE PICASSO ${Utility.secondSuperhero.urlImage}")
             Picasso.get().load(Utility.secondSuperhero.urlImage)
                 .into(binding.ivSecondSuperhero)
             //2º cargamos el nombre del superhéroe
@@ -118,42 +113,24 @@ class SuperheroCompareActivity : AppCompatActivity() {
         }
     }
 
-    private fun getRetrofit(): Retrofit {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://superheroapi.com/api/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        return retrofit
-    }
 
-    private fun deleteSuperhero(superheroTarget: String) {
-        if (superheroTarget == "FIRST") {
-            deleteFirstSuperhero = true
+    private fun deleteSuperhero(superheroe:Superhero) {
+        superheroe.id =""
+        superheroe.name=""
+        superheroe.stats.combat=""
+        superheroe.stats.power=""
+        superheroe.stats.speed=""
+        superheroe.stats.strength=""
+        superheroe.stats.durability=""
+        superheroe.stats.intelligence=""
+
+        if(superheroe==Utility.firstSuperhero) {
             binding.tvNameFirstSuperhero.text = ""
             binding.ivfirstSuperhero.setImageDrawable(null)
-            Utility.firstSuperhero.id =""
-            Utility.firstSuperhero.name=""
-            Utility.firstSuperhero.stats.combat=""
-            Utility.firstSuperhero.stats.power=""
-            Utility.firstSuperhero.stats.speed=""
-            Utility.firstSuperhero.stats.strength=""
-            Utility.firstSuperhero.stats.durability=""
-            Utility.firstSuperhero.stats.intelligence=""
             updateSuperheroes()
-        }
-        if (superheroTarget == "SECOND") {
-            deleteSecondSuperhero = true
+        }else{
             binding.tvNameSecondSuperhero.text = ""
             binding.ivSecondSuperhero.setImageDrawable(null)
-            Utility.secondSuperhero.id =""
-            Utility.secondSuperhero.name=""
-            Utility.secondSuperhero.stats.combat=""
-            Utility.secondSuperhero.stats.power=""
-            Utility.secondSuperhero.stats.speed=""
-            Utility.secondSuperhero.stats.strength=""
-            Utility.secondSuperhero.stats.durability=""
-            Utility.secondSuperhero.stats.intelligence=""
-            updateSuperheroes()
         }
     }
 
@@ -164,21 +141,8 @@ class SuperheroCompareActivity : AppCompatActivity() {
         //Primero comprobar si hay dos superheroes
         if (firstSuperheroe.id != "" && secondSuperheroe.id != "") {
             //Hay dos superhéroes y se pueden comprobar
-            val scoreTotalFirstSuperheroe =
-                Utility.firstSuperhero.stats.power.toInt() * 6 +
-                        Utility.firstSuperhero.stats.combat.toInt() * 5 +
-                        Utility.firstSuperhero.stats.speed.toInt() * 4 +
-                        Utility.firstSuperhero.stats.strength.toInt() * 5 +
-                        Utility.firstSuperhero.stats.durability.toInt() * 3 +
-                        Utility.firstSuperhero.stats.intelligence.toInt()
-            val scoreTotalSecondSuperheroe =
-                Utility.secondSuperhero.stats.power.toInt() * 6 +
-                        Utility.secondSuperhero.stats.combat.toInt() * 5 +
-                        Utility.secondSuperhero.stats.speed.toInt() * 4 +
-                        Utility.secondSuperhero.stats.strength.toInt() * 5 +
-                        Utility.secondSuperhero.stats.durability.toInt() * 3 +
-                        Utility.secondSuperhero.stats.intelligence.toInt()
-
+            val scoreTotalFirstSuperheroe = returnPuntuation(Utility.firstSuperhero)
+            val scoreTotalSecondSuperheroe = returnPuntuation(Utility.secondSuperhero)
 
             val superHeroeWin: String
 
@@ -214,6 +178,15 @@ class SuperheroCompareActivity : AppCompatActivity() {
                 .setPositiveButton("Ok", null)
                 .show()
         }
+    }
+
+    private fun returnPuntuation(superheroe:Superhero):Int{
+        return superheroe.stats.power.toInt() * 6 +
+                superheroe.stats.combat.toInt() * 5 +
+                superheroe.stats.speed.toInt() * 4 +
+                superheroe.stats.strength.toInt() * 5 +
+                superheroe.stats.durability.toInt() * 3 +
+                superheroe.stats.intelligence.toInt()
     }
 
     private fun generateChartCompare(

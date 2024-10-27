@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.firest_appv2.R
+import com.example.firest_appv2.superheroapp.Utilities.Utility
 import com.example.manulopsan.firstApp.superheroapp.SuperheroeViewHolder
 
 
@@ -15,6 +16,8 @@ class SuperheroAdapter(var superheroesList:List<SuperHeroesItemResponse> = empty
         //Como lleva delante this. se refiere a la variable superheroeList que se le pasó
         //por parámetro a SuperheroeAdapter
         this.superheroesList = superheroeList
+        //Update list global where we store the returned list of superheroes
+        Utility.listSuperheroes = superheroeList
         notifyDataSetChanged()
     }
 
