@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -13,11 +14,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.firest_appv2.R
 import com.example.firest_appv2.databinding.ActivitySuperheroCompareBinding
-import com.example.firest_appv2.superheroapp.ApiService
-import com.example.firest_appv2.superheroapp.InfoSuperheroCompare
-import com.example.firest_appv2.superheroapp.SuperHeroInfoResponse
 import com.example.firest_appv2.superheroapp.SuperHeroListActivity
-import com.example.firest_appv2.superheroapp.SuperheroPowerStats
+import com.example.firest_appv2.superheroapp.Utilities.Utility
+import com.example.firest_appv2.superheroapp.superheroCompare.data.StatsSuperhero
+import com.example.firest_appv2.superheroapp.superheroCompare.data.Superhero
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.AxisValueOverrider
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
@@ -35,7 +35,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -43,12 +42,9 @@ class SuperheroCompareActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySuperheroCompareBinding
     private lateinit var retrofit: Retrofit
-    private lateinit var firstSuperheroe: InfoSuperheroCompare
-    private lateinit var secondSuperheroe: InfoSuperheroCompare
     private var deleteFirstSuperhero = false
     private var deleteSecondSuperhero = false
-    private lateinit var powerStatsFirstSuperHero: SuperheroPowerStats
-    private lateinit var powerStatsSecondSuperHero: SuperheroPowerStats
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,25 +59,23 @@ class SuperheroCompareActivity : AppCompatActivity() {
         }
 
         initUI()
-        getInfo()
+        // getInfo()  **** BAJO REVISIÓN - ¿PARA QUE SE NECESITA?
         updateSuperheroes()
     }
 
     private fun initUI() {
-        firstSuperheroe = InfoSuperheroCompare(id = "", name = "")
-        secondSuperheroe = InfoSuperheroCompare(id = "", name = "")
+        // firstSuperhero Utility.firstSuperhero
+        // secondSuperhero Utility.secondsuperhero
         binding.btnAddFirstSuperHero.setOnClickListener { navigateToListSuperHeroes("FirstSuperhero") }
         binding.btnAddSecondSuperHero.setOnClickListener { navigateToListSuperHeroes("SecondSuperhero") }
         binding.btnDeleteFirstSuperHero.setOnClickListener { deleteSuperhero("FIRST") }
         binding.btnDeleteSecondSuperHero.setOnClickListener() { deleteSuperhero("SECOND") }
         binding.ivSimbolCompare.setOnClickListener {
             compareSuperheroes(
-                firstSuperheroe,
-                secondSuperheroe
+                Utility.firstSuperhero,
+                Utility.secondSuperhero
             )
         }
-        powerStatsFirstSuperHero = SuperheroPowerStats("0", "0", "0", "0", "0", "0")
-        powerStatsSecondSuperHero = SuperheroPowerStats("0", "0", "0", "0", "0", "0")
     }
 
     private fun navigateToListSuperHeroes(origin: String) {
@@ -94,93 +88,33 @@ class SuperheroCompareActivity : AppCompatActivity() {
 
         val intent = Intent(this, SuperHeroListActivity::class.java)
         intent.putExtra("DESTINATION", origin)
-        intent.putExtra("ACTION", "add")
-        intent.putExtra("FirstSuperheroe", firstSuperheroe.id)
-        intent.putExtra("SecondSuperheroe", secondSuperheroe.id)
         startActivity(intent)
     }
 
-    private fun getInfo() {
-        val superheroeIDreturn = intent.extras?.getString("EXTRA_ID").orEmpty()
-        val destinatation = intent.extras?.getString("EXTRA_DESTINATION").orEmpty()
-        //Si se ha pulsado el botón eliminar entonces no actualizar el id del superheroe
-        if (deleteFirstSuperhero) {
-            firstSuperheroe.id = ""
-        } else {
-            firstSuperheroe.id = intent.extras?.getString("EXTRA_FIRST_ID").orEmpty()
-        }
-        if (deleteSecondSuperhero) {
-            secondSuperheroe.id = ""
-        } else {
-            secondSuperheroe.id = intent.extras?.getString("EXTRA_SECOND_ID").orEmpty()
-        }
-    }
-
     private fun updateSuperheroes() {
-        if (firstSuperheroe.id != "" || secondSuperheroe.id != "") {
-            //Actualizar contenido de los dos superheroes
-            //Buscar por ID y obtener el nombre y la url
-            if (firstSuperheroe.id != "")
-                CoroutineScope(Dispatchers.IO).launch {
-                    val myResponseFirstSuperheroe = retrofit.create(ApiService::class.java)
-                        .getSuperheroeInfo(firstSuperheroe.id)
-                    if (myResponseFirstSuperheroe.isSuccessful) {
-                        val responseFirstSuperhero: SuperHeroInfoResponse? =
-                            myResponseFirstSuperheroe.body()
-                        if (responseFirstSuperhero != null) {
-                            withContext(Dispatchers.Main) {
-                                Picasso.get().load(responseFirstSuperhero.superheroImage.url)
-                                    .into(binding.ivfirstSuperhero)
-                                binding.tvNameFirstSuperhero.text =
-                                    responseFirstSuperhero.superheroName
-                                firstSuperheroe.name = responseFirstSuperhero.superheroName
-                                powerStatsFirstSuperHero.combat =
-                                    responseFirstSuperhero.superheroStats.combat
-                                powerStatsFirstSuperHero.power =
-                                    responseFirstSuperhero.superheroStats.power
-                                powerStatsSecondSuperHero.speed =
-                                    responseFirstSuperhero.superheroStats.speed
-                                powerStatsFirstSuperHero.strength =
-                                    responseFirstSuperhero.superheroStats.strength
-                                powerStatsFirstSuperHero.durability =
-                                    responseFirstSuperhero.superheroStats.durability
-                                powerStatsFirstSuperHero.intelligence =
-                                    responseFirstSuperhero.superheroStats.intelligence
+        if(Utility.firstSuperhero.id != ""){
+            //Ya hay un primer superhéroe elegido
+            //1º Cargamos la imagen
+            Log.d("PRUEBA","ID - ${Utility.firstSuperhero.id}")
+            Log.d("PRUEBA","NOMBRE ${Utility.firstSuperhero.name}")
+            Log.d("PRUEBA","URL IMAGE ${Utility.firstSuperhero.urlImage}")
+            Picasso.get().load(Utility.firstSuperhero.urlImage)
+                .into(binding.ivfirstSuperhero)
+            //2º cargamos el nombre del superhéroe
+            binding.tvNameFirstSuperhero.text =
+                Utility.firstSuperhero.name
+        }
 
-                            }
-                        }
-                    }
-                }
-            if (secondSuperheroe.id != "")
-                CoroutineScope(Dispatchers.IO).launch {
-                    val myResponseSecondSuperheroe = retrofit.create(ApiService::class.java)
-                        .getSuperheroeInfo(secondSuperheroe.id)
-                    if (myResponseSecondSuperheroe.isSuccessful) {
-                        val responseSecondSuperhero: SuperHeroInfoResponse? =
-                            myResponseSecondSuperheroe.body()
-                        if (responseSecondSuperhero != null) {
-                            withContext(Dispatchers.Main) {
-                                Picasso.get().load(responseSecondSuperhero.superheroImage.url)
-                                    .into(binding.ivSecondSuperhero)
-                                binding.tvNameSecondSuperhero.text =
-                                    responseSecondSuperhero.superheroName
-                                secondSuperheroe.name = responseSecondSuperhero.superheroName
-                                powerStatsSecondSuperHero.combat =
-                                    responseSecondSuperhero.superheroStats.combat
-                                powerStatsSecondSuperHero.power =
-                                    responseSecondSuperhero.superheroStats.power
-                                powerStatsSecondSuperHero.speed =
-                                    responseSecondSuperhero.superheroStats.speed
-                                powerStatsSecondSuperHero.strength =
-                                    responseSecondSuperhero.superheroStats.strength
-                                powerStatsSecondSuperHero.durability =
-                                    responseSecondSuperhero.superheroStats.durability
-                                powerStatsSecondSuperHero.intelligence =
-                                    responseSecondSuperhero.superheroStats.intelligence
-                            }
-                        }
-                    }
-                }
+        if(Utility.secondSuperhero.id!=""){
+            //Ya hay un segundo superhéroe elegido
+            //1º Cargamos la imagen
+            Log.d("PRUEBA","ID - SECOND SUPERHERO ${Utility.secondSuperhero.id}")
+            Log.d("PRUEBA","URL IMAGE - BEFORE PICASSO ${Utility.secondSuperhero.urlImage}")
+            Picasso.get().load(Utility.secondSuperhero.urlImage)
+                .into(binding.ivSecondSuperhero)
+            //2º cargamos el nombre del superhéroe
+            binding.tvNameSecondSuperhero.text =
+                Utility.secondSuperhero.name
         }
     }
 
@@ -197,39 +131,53 @@ class SuperheroCompareActivity : AppCompatActivity() {
             deleteFirstSuperhero = true
             binding.tvNameFirstSuperhero.text = ""
             binding.ivfirstSuperhero.setImageDrawable(null)
-            getInfo()
+            Utility.firstSuperhero.id =""
+            Utility.firstSuperhero.name=""
+            Utility.firstSuperhero.stats.combat=""
+            Utility.firstSuperhero.stats.power=""
+            Utility.firstSuperhero.stats.speed=""
+            Utility.firstSuperhero.stats.strength=""
+            Utility.firstSuperhero.stats.durability=""
+            Utility.firstSuperhero.stats.intelligence=""
             updateSuperheroes()
         }
         if (superheroTarget == "SECOND") {
             deleteSecondSuperhero = true
             binding.tvNameSecondSuperhero.text = ""
             binding.ivSecondSuperhero.setImageDrawable(null)
-            getInfo()
+            Utility.secondSuperhero.id =""
+            Utility.secondSuperhero.name=""
+            Utility.secondSuperhero.stats.combat=""
+            Utility.secondSuperhero.stats.power=""
+            Utility.secondSuperhero.stats.speed=""
+            Utility.secondSuperhero.stats.strength=""
+            Utility.secondSuperhero.stats.durability=""
+            Utility.secondSuperhero.stats.intelligence=""
             updateSuperheroes()
         }
     }
 
     private fun compareSuperheroes(
-        firstSuperheroe: InfoSuperheroCompare,
-        secondSuperheroe: InfoSuperheroCompare
+        firstSuperheroe: Superhero,
+        secondSuperheroe: Superhero
     ) {
         //Primero comprobar si hay dos superheroes
         if (firstSuperheroe.id != "" && secondSuperheroe.id != "") {
             //Hay dos superhéroes y se pueden comprobar
             val scoreTotalFirstSuperheroe =
-                powerStatsFirstSuperHero.power.toInt() * 6 +
-                        powerStatsFirstSuperHero.combat.toInt() * 5 +
-                        powerStatsFirstSuperHero.speed.toInt() * 4 +
-                        powerStatsFirstSuperHero.strength.toInt() * 5 +
-                        powerStatsFirstSuperHero.durability.toInt() * 3 +
-                        powerStatsFirstSuperHero.intelligence.toInt()
+                Utility.firstSuperhero.stats.power.toInt() * 6 +
+                        Utility.firstSuperhero.stats.combat.toInt() * 5 +
+                        Utility.firstSuperhero.stats.speed.toInt() * 4 +
+                        Utility.firstSuperhero.stats.strength.toInt() * 5 +
+                        Utility.firstSuperhero.stats.durability.toInt() * 3 +
+                        Utility.firstSuperhero.stats.intelligence.toInt()
             val scoreTotalSecondSuperheroe =
-                powerStatsSecondSuperHero.power.toInt() * 6 +
-                        powerStatsSecondSuperHero.combat.toInt() * 5 +
-                        powerStatsSecondSuperHero.speed.toInt() * 4 +
-                        powerStatsSecondSuperHero.strength.toInt() * 5 +
-                        powerStatsSecondSuperHero.durability.toInt() * 3 +
-                        powerStatsSecondSuperHero.intelligence.toInt()
+                Utility.secondSuperhero.stats.power.toInt() * 6 +
+                        Utility.secondSuperhero.stats.combat.toInt() * 5 +
+                        Utility.secondSuperhero.stats.speed.toInt() * 4 +
+                        Utility.secondSuperhero.stats.strength.toInt() * 5 +
+                        Utility.secondSuperhero.stats.durability.toInt() * 3 +
+                        Utility.secondSuperhero.stats.intelligence.toInt()
 
 
             val superHeroeWin: String
@@ -244,11 +192,11 @@ class SuperheroCompareActivity : AppCompatActivity() {
             dialog.setContentView(R.layout.item_dialog_compare_superheroes)
             //Generar el gráfico
             generateChartCompare(
-                powerStatsFirstSuperHero,
-                powerStatsSecondSuperHero,
+                Utility.firstSuperhero.stats,
+                Utility.secondSuperhero.stats,
                 dialog,
-                firstSuperheroe,
-                secondSuperheroe
+                Utility.firstSuperhero,
+                Utility.secondSuperhero
             )
 
             //Generar el texto
@@ -269,11 +217,11 @@ class SuperheroCompareActivity : AppCompatActivity() {
     }
 
     private fun generateChartCompare(
-        powerStatsFirstSuperHero: SuperheroPowerStats,
-        powerStatsSecondSuperHero: SuperheroPowerStats,
+        powerStatsFirstSuperHero: StatsSuperhero,
+        powerStatsSecondSuperHero: StatsSuperhero,
         dialog: Dialog,
-        firstSuperheroe: InfoSuperheroCompare,
-        secondSuperheroe: InfoSuperheroCompare
+        firstSuperheroe: Superhero,
+        secondSuperheroe: Superhero
     ) {
         val modelProducer = CartesianChartModelProducer()
         val chartCompare: CartesianChartView = dialog.findViewById(R.id.chart_view_result)

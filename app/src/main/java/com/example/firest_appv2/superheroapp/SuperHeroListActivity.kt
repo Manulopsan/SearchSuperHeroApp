@@ -15,10 +15,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.firest_appv2.R
 import com.example.firest_appv2.databinding.ActivitySuperHeroListBinding
 import com.example.firest_appv2.superheroapp.SuperheroDetailActivity.Companion.EXTRA_ID
+import com.example.firest_appv2.superheroapp.Utilities.Utility
 import com.example.firest_appv2.superheroapp.superheroCompare.SuperheroCompareActivity
+import com.example.firest_appv2.superheroapp.superheroCompare.data.Superhero
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -82,7 +87,6 @@ class SuperHeroListActivity : AppCompatActivity() {
                 Log.i("prueba", "fracaso")
             }
         }
-
     }
 
     private fun getRetrofit():Retrofit{
@@ -95,35 +99,68 @@ class SuperHeroListActivity : AppCompatActivity() {
 
     private fun applyFunction(id:String){
         val destination:String = intent.extras?.getString("DESTINATION").orEmpty()
-        val idFirstSuperheroe = intent.extras?.getString("FirstSuperheroe").orEmpty()
-        val idSecondSuperheroe = intent.extras?.getString("SecondSuperheroe").orEmpty()
+
         if(destination.isNotEmpty()){
             //Se ha accedido desde la opción de comparar dos superhéroes
-            val destination = intent.extras?.getString("DESTINATION").orEmpty()
-            val intent = Intent(this,SuperheroCompareActivity::class.java)
-            intent.putExtra("EXTRA_DESTINATION",destination)
-            intent.putExtra("EXTRA_ID",id)
 
             if(destination=="FirstSuperhero"){
-                intent.putExtra("EXTRA_FIRST_ID",id)
-                intent.putExtra("EXTRA_SECOND_ID",idSecondSuperheroe)
+                Utility.firstSuperhero.id = id
+                var response: SuperHeroInfoResponse? = SuperHeroInfoResponse("", SuperheroPowerStats("","","","","",""),SuperheroBiography("","",listOf(""),"","","",""),SuperHeroDetailImage(""))
+                //Guardar todos los datos del superhéroe
+                val job = CoroutineScope(Dispatchers.IO).launch{
+                    val myResponse = retrofit.create(ApiService::class.java).getSuperheroeInfo(id)
+                    if(myResponse.isSuccessful){
+                        response = myResponse.body()
+                    }
+                }
+                while(job.isActive){
+                    //Await to finnish the coroutine
+                }
+                saveDataSuperheroe(Utility.firstSuperhero,response)
+                val intent = Intent(this,SuperheroCompareActivity::class.java)
+                startActivity(intent)
             }
+
 
             if(destination=="SecondSuperhero"){
-                intent.putExtra("EXTRA_FIRST_ID",idFirstSuperheroe)
-                intent.putExtra("EXTRA_SECOND_ID",id)
+                Utility.secondSuperhero.id = id
+                var response: SuperHeroInfoResponse? = SuperHeroInfoResponse("", SuperheroPowerStats("","","","","",""),SuperheroBiography("","",listOf(""),"","","",""),SuperHeroDetailImage(""))
+                //Guardar todos los datos del superhéroe
+                val job = CoroutineScope(Dispatchers.IO).launch{
+                    val myResponse = retrofit.create(ApiService::class.java).getSuperheroeInfo(id)
+                    if(myResponse.isSuccessful){
+                        response = myResponse.body()
+                    }
+                }
+                while(job.isActive){
+                    //Await to finnish the coroutine
+                }
+                saveDataSuperheroe(Utility.secondSuperhero,response)
+                val intent = Intent(this,SuperheroCompareActivity::class.java)
+                startActivity(intent)
             }
-
-            startActivity(intent)
         }else{
-            detailSuperhero(id)
+            //Se ha llegado a la función applyFunction desde la opción de ver la información de
+            //un superhéroe
+            val intent = Intent(this,SuperheroDetailActivity::class.java)
+            intent.putExtra(EXTRA_ID,id)
+            startActivity(intent)
         }
     }
 
-    private fun detailSuperhero(id:String){
-        val intent = Intent(this,SuperheroDetailActivity::class.java)
-        intent.putExtra(EXTRA_ID,id)
-        startActivity(intent)
+    private fun saveDataSuperheroe(superheroe:Superhero,dataSuperheroe:SuperHeroInfoResponse?){
+        superheroe.name = dataSuperheroe?.superheroName.toString()
+        superheroe.urlImage = dataSuperheroe?.superheroImage?.url.toString()
+        superheroe.stats.combat = dataSuperheroe?.superheroStats?.combat.toString()
+        superheroe.stats.power = dataSuperheroe?.superheroStats?.power.toString()
+        superheroe.stats.speed = dataSuperheroe?.superheroStats?.speed.toString()
+        superheroe.stats.durability = dataSuperheroe?.superheroStats?.durability.toString()
+        superheroe.stats.intelligence = dataSuperheroe?.superheroStats?.intelligence.toString()
+        superheroe.stats.strength = dataSuperheroe?.superheroStats?.strength.toString()
+
     }
 
 }
+
+//CORREGIR PROBLEMA - SALTA A LA ACTIVITY DE COMPARE Y TODAVÍA NO HA TERMINADO LA CORUTINA POR ESO
+//NO SE MUESTRAN LOS DATOS

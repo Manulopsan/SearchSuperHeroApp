@@ -29,8 +29,3 @@ data class SuperheroBiography(
     @SerializedName("publisher") val publisher:String,
     @SerializedName("alignment") val alignment:String
 )
-
-data class InfoSuperheroCompare(
-    var id:String,
-    var name:String
-)
